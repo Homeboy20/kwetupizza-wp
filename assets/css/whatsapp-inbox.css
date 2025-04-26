@@ -1,0 +1,635 @@
+/* KwetuPizza WhatsApp Inbox Styles */
+
+/* Main container */
+.kwetupizza-inbox-container {
+    margin: 20px 0;
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Oxygen-Sans, Ubuntu, Cantarell, "Helvetica Neue", sans-serif;
+}
+
+.kwetupizza-inbox-wrapper {
+    display: flex;
+    height: 80vh;
+    min-height: 600px;
+    background-color: #f0f0f1;
+    box-shadow: 0 1px 20px rgba(0, 0, 0, 0.08);
+    border-radius: 12px;
+    overflow: hidden;
+}
+
+/* Customer list sidebar */
+.kwetupizza-customer-list {
+    width: 30%;
+    min-width: 280px;
+    max-width: 350px;
+    background-color: #fff;
+    border-right: 1px solid #e2e8f0;
+    display: flex;
+    flex-direction: column;
+}
+
+.kwetupizza-search-container {
+    padding: 15px;
+    border-bottom: 1px solid #e2e8f0;
+}
+
+.kwetupizza-search-input {
+    width: 100%;
+    padding: 10px 15px;
+    border-radius: 20px;
+    border: 1px solid #e2e8f0;
+    font-size: 14px;
+    background-color: #f7f7f7;
+    transition: all 0.3s ease;
+}
+
+.kwetupizza-search-input:focus {
+    outline: none;
+    box-shadow: 0 0 0 2px rgba(66, 153, 225, 0.5);
+    background-color: #fff;
+}
+
+.kwetupizza-customers-container {
+    flex: 1;
+    overflow-y: auto;
+}
+
+.kwetupizza-no-customers {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 100%;
+    color: #718096;
+    font-size: 14px;
+}
+
+.kwetupizza-customer-item {
+    display: flex;
+    align-items: center;
+    padding: 15px;
+    border-bottom: 1px solid #e2e8f0;
+    cursor: pointer;
+    transition: background-color 0.2s ease;
+}
+
+.kwetupizza-customer-item:hover {
+    background-color: #f7fafc;
+}
+
+.kwetupizza-customer-item.active {
+    background-color: #ebf8ff;
+    border-left: 3px solid #25D366;
+}
+
+.kwetupizza-customer-avatar {
+    width: 45px;
+    height: 45px;
+    border-radius: 50%;
+    background-color: #25D366;
+    color: white;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    font-size: 18px;
+    font-weight: bold;
+    margin-right: 15px;
+}
+
+.kwetupizza-customer-info {
+    flex: 1;
+    overflow: hidden;
+}
+
+.kwetupizza-customer-name {
+    font-weight: 600;
+    color: #2d3748;
+    font-size: 15px;
+    display: flex;
+    justify-content: space-between;
+}
+
+.kwetupizza-customer-time {
+    font-size: 12px;
+    color: #718096;
+    font-weight: normal;
+}
+
+.kwetupizza-customer-preview {
+    font-size: 13px;
+    color: #718096;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    margin-top: 3px;
+}
+
+/* Chat area */
+.kwetupizza-chat-area {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    background-color: #f0f2f5;
+}
+
+.kwetupizza-empty-chat {
+    display: flex;
+    flex: 1;
+    justify-content: center;
+    align-items: center;
+    background-color: #f7fafc;
+    color: #718096;
+}
+
+.kwetupizza-empty-chat-content {
+    text-align: center;
+}
+
+.kwetupizza-empty-chat-content .dashicons {
+    font-size: 50px;
+    color: #25D366;
+    width: 50px;
+    height: 50px;
+}
+
+.kwetupizza-empty-chat-content h2 {
+    font-size: 24px;
+    font-weight: 600;
+    margin: 20px 0 10px;
+    color: #2d3748;
+}
+
+.kwetupizza-empty-chat-content p {
+    font-size: 16px;
+    color: #718096;
+}
+
+/* Chat header */
+.kwetupizza-chat-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 10px 20px;
+    background-color: #fff;
+    border-bottom: 1px solid #e2e8f0;
+}
+
+.kwetupizza-chat-user-details {
+    display: flex;
+    align-items: center;
+}
+
+.kwetupizza-chat-avatar {
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    background-color: #25D366;
+    color: white;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    font-size: 18px;
+    font-weight: bold;
+    margin-right: 15px;
+}
+
+.kwetupizza-chat-username {
+    font-weight: 600;
+    font-size: 16px;
+    color: #2d3748;
+}
+
+.kwetupizza-chat-phone {
+    font-size: 13px;
+    color: #718096;
+    margin-top: 3px;
+}
+
+.kwetupizza-chat-actions {
+    display: flex;
+    gap: 10px;
+}
+
+.kwetupizza-chat-actions button {
+    background-color: #f7fafc;
+    border: 1px solid #e2e8f0;
+    box-shadow: none;
+}
+
+.kwetupizza-chat-actions button:hover {
+    background-color: #ebf8ff;
+}
+
+/* Chat messages */
+.kwetupizza-chat-messages {
+    flex: 1;
+    overflow-y: auto;
+    padding: 20px;
+    background-image: url('data:image/png;base64,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');
+    background-repeat: repeat;
+}
+
+.kwetupizza-loading-messages {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding: 20px;
+    color: #718096;
+}
+
+.kwetupizza-message {
+    margin-bottom: 12px;
+    max-width: 70%;
+    position: relative;
+    clear: both;
+    animation: messageAppear 0.3s ease;
+}
+
+@keyframes messageAppear {
+    from {
+        opacity: 0;
+        transform: translateY(10px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+.kwetupizza-message-customer {
+    float: left;
+}
+
+.kwetupizza-message-admin {
+    float: right;
+}
+
+.kwetupizza-message-bubble {
+    padding: 10px 14px;
+    border-radius: 14px;
+    position: relative;
+    word-wrap: break-word;
+}
+
+.kwetupizza-message-customer .kwetupizza-message-bubble {
+    background-color: #fff;
+    border-top-left-radius: 0;
+    box-shadow: 0 1px 1px rgba(0, 0, 0, 0.05);
+}
+
+.kwetupizza-message-admin .kwetupizza-message-bubble {
+    background-color: #dcf8c6;
+    border-top-right-radius: 0;
+    box-shadow: 0 1px 1px rgba(0, 0, 0, 0.05);
+}
+
+.kwetupizza-message-time {
+    font-size: 11px;
+    color: #718096;
+    margin-top: 4px;
+    display: block;
+    text-align: right;
+}
+
+.kwetupizza-message-customer .kwetupizza-message-time {
+    text-align: left;
+}
+
+/* Chat input area */
+.kwetupizza-chat-input {
+    background-color: #fff;
+    padding: 10px 15px;
+    border-top: 1px solid #e2e8f0;
+}
+
+.kwetupizza-message-controls {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.kwetupizza-attach-button,
+.kwetupizza-send-button {
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    border: none;
+    background-color: #f7fafc;
+    color: #4a5568;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    cursor: pointer;
+    transition: background-color 0.2s ease;
+}
+
+.kwetupizza-attach-button:hover,
+.kwetupizza-send-button:hover {
+    background-color: #edf2f7;
+}
+
+.kwetupizza-send-button {
+    background-color: #25D366;
+    color: white;
+}
+
+.kwetupizza-send-button:hover {
+    background-color: #22c55e;
+}
+
+.kwetupizza-message-box {
+    flex: 1;
+}
+
+.kwetupizza-message-textarea {
+    width: 100%;
+    border-radius: 20px;
+    border: 1px solid #e2e8f0;
+    padding: 10px 15px;
+    resize: none;
+    height: 40px;
+    font-family: inherit;
+    font-size: 14px;
+    line-height: 1.4;
+    background-color: #f7fafc;
+    transition: all 0.2s ease;
+}
+
+.kwetupizza-message-textarea:focus {
+    outline: none;
+    background-color: #fff;
+    box-shadow: 0 0 0 2px rgba(66, 153, 225, 0.5);
+}
+
+.kwetupizza-quick-replies {
+    display: flex;
+    gap: 8px;
+    margin-top: 10px;
+    overflow-x: auto;
+    padding-bottom: 5px;
+}
+
+.kwetupizza-quick-reply {
+    padding: 5px 12px;
+    background-color: #f7fafc;
+    border: 1px solid #e2e8f0;
+    border-radius: 16px;
+    color: #4a5568;
+    font-size: 13px;
+    white-space: nowrap;
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+
+.kwetupizza-quick-reply:hover {
+    background-color: #ebf8ff;
+    border-color: #bee3f8;
+}
+
+/* Day separator */
+.kwetupizza-day-separator {
+    text-align: center;
+    margin: 20px 0;
+    position: relative;
+}
+
+.kwetupizza-day-separator::before {
+    content: '';
+    position: absolute;
+    top: 50%;
+    left: 0;
+    right: 0;
+    height: 1px;
+    background-color: #e2e8f0;
+    z-index: 0;
+}
+
+.kwetupizza-day-separator-text {
+    position: relative;
+    z-index: 1;
+    background-color: #f0f2f5;
+    padding: 0 10px;
+    font-size: 12px;
+    color: #718096;
+}
+
+/* Typing indicator */
+.kwetupizza-typing {
+    display: flex;
+    padding: 10px;
+    margin-bottom: 12px;
+    align-items: flex-end;
+    clear: both;
+    animation: fadeInUp 0.3s;
+}
+
+.kwetupizza-typing-indicator {
+    display: flex;
+    align-items: center;
+    padding: 8px 16px;
+    background-color: #fff;
+    border-radius: 18px;
+    box-shadow: 0 1px 1px rgba(0, 0, 0, 0.05);
+}
+
+.kwetupizza-typing-dot {
+    width: 8px;
+    height: 8px;
+    background-color: #b2b2b2;
+    border-radius: 50%;
+    margin: 0 2px;
+    animation: typing-dot 1.4s infinite;
+}
+
+.kwetupizza-typing-dot:nth-child(2) {
+    animation-delay: 0.2s;
+}
+
+.kwetupizza-typing-dot:nth-child(3) {
+    animation-delay: 0.4s;
+}
+
+@keyframes typing-dot {
+    0%, 60%, 100% {
+        transform: translateY(0);
+    }
+    30% {
+        transform: translateY(-5px);
+    }
+}
+
+/* Responsive styles */
+@media screen and (max-width: 768px) {
+    .kwetupizza-inbox-wrapper {
+        flex-direction: column;
+        height: auto;
+    }
+    
+    .kwetupizza-customer-list {
+        width: 100%;
+        max-width: none;
+        height: 300px;
+    }
+    
+    .kwetupizza-chat-area {
+        height: 70vh;
+    }
+}
+
+/* Order history popup */
+.kwetupizza-order-history-popup {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background-color: rgba(0, 0, 0, 0.5);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    z-index: 9999;
+    animation: fadeIn 0.3s;
+}
+
+.kwetupizza-order-history-content {
+    width: 80%;
+    max-width: 800px;
+    max-height: 80vh;
+    background-color: #fff;
+    border-radius: 8px;
+    overflow: hidden;
+    display: flex;
+    flex-direction: column;
+    animation: scaleIn 0.3s;
+}
+
+.kwetupizza-order-history-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 15px 20px;
+    border-bottom: 1px solid #e2e8f0;
+}
+
+.kwetupizza-order-history-header h2 {
+    margin: 0;
+    font-size: 18px;
+    color: #2d3748;
+}
+
+.kwetupizza-order-history-close {
+    background: none;
+    border: none;
+    font-size: 24px;
+    cursor: pointer;
+    color: #718096;
+}
+
+.kwetupizza-order-history-body {
+    padding: 20px;
+    overflow-y: auto;
+}
+
+.kwetupizza-order-item {
+    margin-bottom: 20px;
+    padding: 15px;
+    border: 1px solid #e2e8f0;
+    border-radius: 8px;
+    background-color: #f7fafc;
+}
+
+.kwetupizza-order-header {
+    display: flex;
+    justify-content: space-between;
+    margin-bottom: 10px;
+}
+
+.kwetupizza-order-id {
+    font-weight: 600;
+    color: #2d3748;
+}
+
+.kwetupizza-order-date {
+    color: #718096;
+    font-size: 14px;
+}
+
+.kwetupizza-order-status {
+    display: inline-block;
+    padding: 4px 8px;
+    border-radius: 12px;
+    font-size: 12px;
+    font-weight: 600;
+    margin-bottom: 10px;
+}
+
+.kwetupizza-order-status-pending {
+    background-color: #fed7d7;
+    color: #e53e3e;
+}
+
+.kwetupizza-order-status-processing {
+    background-color: #bee3f8;
+    color: #3182ce;
+}
+
+.kwetupizza-order-status-completed {
+    background-color: #c6f6d5;
+    color: #38a169;
+}
+
+.kwetupizza-order-status-cancelled {
+    background-color: #e2e8f0;
+    color: #718096;
+}
+
+.kwetupizza-order-products {
+    margin-top: 10px;
+}
+
+.kwetupizza-order-product {
+    display: flex;
+    justify-content: space-between;
+    padding: 8px 0;
+    border-bottom: 1px solid #e2e8f0;
+}
+
+.kwetupizza-order-product:last-child {
+    border-bottom: none;
+}
+
+.kwetupizza-order-total {
+    margin-top: 15px;
+    text-align: right;
+    font-weight: 600;
+    color: #2d3748;
+}
+
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+    }
+    to {
+        opacity: 1;
+    }
+}
+
+@keyframes scaleIn {
+    from {
+        transform: scale(0.9);
+        opacity: 0;
+    }
+    to {
+        transform: scale(1);
+        opacity: 1;
+    }
+}
+
+@keyframes fadeInUp {
+    from {
+        opacity: 0;
+        transform: translateY(10px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+} 

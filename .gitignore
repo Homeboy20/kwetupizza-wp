@@ -1,0 +1,32 @@
+# Ignore WordPress core files
+.htaccess
+wp-config.php
+wp-content/uploads/
+wp-content/upgrade/
+wp-content/backup*/
+wp-content/cache/
+wp-content/advanced-cache.php
+wp-content/object-cache.php
+
+# Ignore log files
+*.log
+debug.log
+debug-webhook-function.log
+
+# Ignore OS files
+.DS_Store
+Thumbs.db
+
+# Ignore development files
+node_modules/
+.sass-cache/
+.vscode/
+.idea/
+
+# Ignore environment-specific files
+.env
+.env.*
+
+# Ignore composer files
+/vendor/
+/composer.lock 
