@@ -2,7 +2,7 @@
 /*
 Plugin Name: KwetuPizza Plugin
 Description: A pizza order management plugin with custom database structure, WhatsApp bot integration, and webhook callback URL auto-generation.
-Version: 1.6
+Version: 1.7
 Author: Homeboy20
 */
 
