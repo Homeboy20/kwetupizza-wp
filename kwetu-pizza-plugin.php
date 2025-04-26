@@ -2,7 +2,7 @@
 /*
 Plugin Name: KwetuPizza Plugin
 Description: A pizza order management plugin with custom database structure, WhatsApp bot integration, and webhook callback URL auto-generation.
-Version: 1.5
+Version: 1.6
 Author: Homeboy20
 */
 
@@ -45,7 +45,7 @@ function kwetupizza_plugin_activation() {
     kwetupizza_create_tables();
     
     // Add basic plugin information to options
-    update_option('kwetupizza_plugin_version', '1.5');
+    update_option('kwetupizza_plugin_version', '1.6');
     update_option('kwetupizza_plugin_activated', current_time('mysql'));
     
     // Generate a default webhook security token if not already set
@@ -191,6 +191,24 @@ function kwetupizza_update_db_check() {
     }
 }
 add_action('plugins_loaded', 'kwetupizza_update_db_check');
+
+/**
+ * Check and update the plugin version if necessary.
+ */
+function kwetupizza_update_plugin_version() {
+    $current_version = get_option('kwetupizza_plugin_version', '1.0');
+    
+    // If current version is less than 1.6, update to 1.6
+    if (version_compare($current_version, '1.6', '<')) {
+        update_option('kwetupizza_plugin_version', '1.6');
+        
+        // Log version update if logging is enabled
+        if (get_option('kwetupizza_enable_logging', false)) {
+            error_log('KwetuPizza Plugin: Updated version from ' . $current_version . ' to 1.6');
+        }
+    }
+}
+add_action('plugins_loaded', 'kwetupizza_update_plugin_version', 20); // Lower priority than database update
 
 // Generate callback URLs for webhooks
 function kwetupizza_get_callback_url($service) {
