@@ -316,7 +316,7 @@ add_action('wp_ajax_kwetupizza_get_order_items', 'kwetupizza_get_order_items');
 // Function to add User Detail page (hidden from main menu, accessed via links)
 function kwetupizza_add_user_detail_menu() {
     add_submenu_page(
-        null, // Hide from menu, accessed directly
+        'kwetupizza-dashboard', // Use the correct parent slug
         'User Detail',                       // Page title
         'User Detail',                       // Menu title (not shown)
         'manage_options',                    // Capability required
