@@ -2216,4 +2216,81 @@ function kwetupizza_get_secure_option($option_name, $default = '') {
     return $value;
 }
 
+// Handle product selection
+function kwetupizza_handle_product_selection($from, $message) {
+    global $wpdb;
+    $table_name = $wpdb->prefix . 'kwetupizza_products';
+    
+    // Check if the message is numeric
+    if (is_numeric($message)) {
+        $product_id = intval($message);
+        
+        // Get product details
+        $product = $wpdb->get_row($wpdb->prepare(
+            "SELECT * FROM $table_name WHERE id = %d",
+            $product_id
+        ));
+        
+        if ($product) {
+            // Process the order
+            kwetupizza_process_order($from, $product_id);
+        } else {
+            // Product not found
+            kwetupizza_send_whatsapp_message($from, "Sorry, we couldn't find a product with that ID. Please try again or type 'menu' to see our options.");
+        }
+    } else {
+        // If not numeric, try to match product name
+        $products = $wpdb->get_results($wpdb->prepare(
+            "SELECT * FROM $table_name WHERE product_name LIKE %s",
+            '%' . $wpdb->esc_like($message) . '%'
+        ));
+        
+        if (count($products) === 1) {
+            // Exact match found
+            kwetupizza_process_order($from, $products[0]->id);
+        } else if (count($products) > 1) {
+            // Multiple matches found
+            $message = "We found multiple products matching your search. Please select one:\n\n";
+            foreach ($products as $product) {
+                $message .= $product->id . ". " . $product->product_name . " - " . number_format($product->price, 0) . " TZS\n";
+            }
+            
+            kwetupizza_send_whatsapp_message($from, $message);
+            
+            // Update context to await selection
+            $context = kwetupizza_get_conversation_context($from);
+            $context['awaiting'] = 'product_selection';
+            kwetupizza_set_conversation_context($from, $context);
+        } else {
+            // No matches found
+            kwetupizza_send_whatsapp_message($from, "Sorry, we couldn't find a product matching '$message'. Please try again or type 'menu' to see our options.");
+        }
+    }
+}
+
+// Handle quantity input
+function kwetupizza_handle_quantity_input($from, $message) {
+    $context = kwetupizza_get_conversation_context($from);
+    
+    if (!isset($context['temp_product_id'])) {
+        kwetupizza_send_whatsapp_message($from, "Sorry, we couldn't find your product selection. Please start over by typing 'menu'.");
+        return;
+    }
+    
+    if (is_numeric($message)) {
+        $quantity = intval($message);
+        
+        if ($quantity > 0 && $quantity <= 20) {
+            // Valid quantity, confirm order and request special instructions
+            kwetupizza_confirm_order_and_request_quantity($from, $context['temp_product_id'], $quantity);
+        } else {
+            // Invalid quantity
+            kwetupizza_send_whatsapp_message($from, "Please enter a valid quantity between 1 and 20.");
+        }
+    } else {
+        // Non-numeric input
+        kwetupizza_send_whatsapp_message($from, "Please enter a valid number for the quantity.");
+    }
+}
+
 ?>

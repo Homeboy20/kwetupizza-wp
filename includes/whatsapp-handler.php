@@ -257,6 +257,21 @@ if (!function_exists('kwetupizza_process_whatsapp_webhook')) {
         
         $value = $webhook_data['entry'][0]['changes'][0]['value'];
         
+        // Store the phone_number_id for use in replies
+        global $kwetupizza_webhook_metadata;
+        $kwetupizza_webhook_metadata = array();
+        
+        if (isset($value['metadata']) && isset($value['metadata']['phone_number_id'])) {
+            $kwetupizza_webhook_metadata['phone_number_id'] = $value['metadata']['phone_number_id'];
+            
+            // Also update the option immediately
+            update_option('kwetupizza_whatsapp_phone_id', $value['metadata']['phone_number_id']);
+            
+            if (get_option('kwetupizza_enable_logging', false)) {
+                error_log('Updated WhatsApp phone_id to: ' . $value['metadata']['phone_number_id']);
+            }
+        }
+        
         // Message processing
         if (isset($value['messages']) && !empty($value['messages'][0])) {
             $message = $value['messages'][0];
@@ -515,22 +530,103 @@ function kwetupizza_process_message($from, $message, $message_type = 'text') {
     }
     
     try {
-        // Send a basic response
-        $success = kwetupizza_send_whatsapp_message(
-            $from, 
-            "Hello! Thanks for your message: \"$message\". Our system is now processing your request.", 
-            'text'
-        );
-        
-        if ($success) {
-            error_log("Successfully sent message to $from");
-        } else {
-            error_log("Failed to send message to $from");
+        // Check if we need to update the phone_id from webhook metadata
+        global $kwetupizza_webhook_metadata;
+        if (isset($kwetupizza_webhook_metadata) && isset($kwetupizza_webhook_metadata['phone_number_id'])) {
+            update_option('kwetupizza_whatsapp_phone_id', $kwetupizza_webhook_metadata['phone_number_id']);
+            if (get_option('kwetupizza_enable_logging', false)) {
+                error_log('Updated WhatsApp phone_id to: ' . $kwetupizza_webhook_metadata['phone_number_id']);
+            }
         }
         
-        return $success;
+        // Check for greeting messages
+        $greeting_patterns = array(
+            '/^hi$/i', 
+            '/^hello$/i', 
+            '/^hey$/i', 
+            '/^howdy$/i', 
+            '/^start$/i',
+            '/^menu$/i',
+            '/^help$/i'
+        );
+        
+        $is_greeting = false;
+        foreach ($greeting_patterns as $pattern) {
+            if (preg_match($pattern, trim($message))) {
+                $is_greeting = true;
+                break;
+            }
+        }
+        
+        if ($is_greeting) {
+            // Send greeting message
+            kwetupizza_send_greeting($from);
+            
+            // Reset conversation context
+            kwetupizza_reset_conversation_context($from);
+            
+            return true;
+        }
+        
+        // Get the conversation context
+        $context = kwetupizza_get_conversation_context($from);
+        
+        // Handle based on context
+        if (isset($context['awaiting']) && !empty($context['awaiting'])) {
+            switch ($context['awaiting']) {
+                case 'product_selection':
+                    // Handle product selection
+                    kwetupizza_handle_product_selection($from, $message);
+                    break;
+                case 'quantity':
+                    // Handle quantity
+                    kwetupizza_handle_quantity_input($from, $message);
+                    break;
+                case 'address':
+                    // Handle address
+                    kwetupizza_handle_address_and_ask_payment_provider($from, $message);
+                    break;
+                case 'payment_provider':
+                    // Handle payment provider selection
+                    kwetupizza_handle_payment_provider_response($from, $message);
+                    break;
+                case 'use_whatsapp_number':
+                    // Handle response to using WhatsApp number for payment
+                    kwetupizza_handle_use_whatsapp_number_response($from, $message);
+                    break;
+                case 'payment_phone':
+                    // Handle payment phone number input
+                    kwetupizza_handle_payment_phone_input($from, $message);
+                    break;
+                default:
+                    // For any other state, send the default response
+                    kwetupizza_send_default_message($from);
+            }
+            
+            return true;
+        }
+        
+        // Handle general commands
+        if (strtolower(trim($message)) === 'menu') {
+            kwetupizza_send_full_menu($from);
+            return true;
+        } else if (strtolower(trim($message)) === 'help') {
+            kwetupizza_send_help_message($from);
+            return true;
+        } else if (strtolower(trim($message)) === 'cart') {
+            kwetupizza_send_cart_summary($from, $context['cart']);
+            return true;
+        } else if (strtolower(trim($message)) === 'checkout' || $message === 'checkout_btn') {
+            kwetupizza_handle_add_or_checkout($from, 'checkout');
+            return true;
+        }
+        
+        // Send a default response if nothing else matched
+        kwetupizza_send_default_message($from);
+        
+        return true;
     } catch (Exception $e) {
-        error_log("Exception when sending message: " . $e->getMessage());
+        error_log("Exception when processing message: " . $e->getMessage());
         return false;
     }
 }
@@ -720,34 +816,46 @@ if (!function_exists('kwetupizza_send_whatsapp_message')) {
             error_log('WhatsApp API Request: ' . json_encode($request_data));
         }
         
-        // Send API request
-        $response = wp_remote_post("https://graph.facebook.com/{$api_version}/{$phone_id}/messages", [
-            'headers' => [
-                'Authorization' => 'Bearer ' . $token,
-                'Content-Type' => 'application/json'
-            ],
-            'body' => json_encode($request_data),
-            'timeout' => 30
-        ]);
+        // Try sending the message up to 3 times in case of failure
+        $max_attempts = 3;
+        $attempt = 1;
+        $success = false;
         
-        if (is_wp_error($response)) {
-            error_log('WhatsApp API Error: ' . $response->get_error_message());
-            return false;
+        while ($attempt <= $max_attempts && !$success) {
+            // Send API request
+            $response = wp_remote_post("https://graph.facebook.com/{$api_version}/{$phone_id}/messages", [
+                'headers' => [
+                    'Authorization' => 'Bearer ' . $token,
+                    'Content-Type' => 'application/json'
+                ],
+                'body' => json_encode($request_data),
+                'timeout' => 30
+            ]);
+            
+            if (is_wp_error($response)) {
+                error_log('WhatsApp API Error (Attempt ' . $attempt . '): ' . $response->get_error_message());
+                $attempt++;
+                continue;
+            }
+            
+            $response_body = json_decode(wp_remote_retrieve_body($response), true);
+            $status_code = wp_remote_retrieve_response_code($response);
+            
+            if ($status_code !== 200) {
+                error_log('WhatsApp API Error (Attempt ' . $attempt . '): ' . print_r($response_body, true));
+                $attempt++;
+                continue;
+            }
+            
+            // If we got here, the message was sent successfully
+            if (get_option('kwetupizza_enable_logging', false)) {
+                error_log('WhatsApp message sent successfully: ' . print_r($response_body, true));
+            }
+            
+            $success = true;
         }
         
-        $response_body = json_decode(wp_remote_retrieve_body($response), true);
-        $status_code = wp_remote_retrieve_response_code($response);
-        
-        if ($status_code !== 200) {
-            error_log('WhatsApp API Error: ' . print_r($response_body, true));
-            return false;
-        }
-        
-        if (get_option('kwetupizza_enable_logging', false)) {
-            error_log('WhatsApp message sent successfully: ' . print_r($response_body, true));
-        }
-        
-        return true;
+        return $success;
     }
 }
 
