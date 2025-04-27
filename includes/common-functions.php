@@ -1000,6 +1000,59 @@ function kwetupizza_handle_payment_provider_response($from, $response) {
     }
 }
 
+/**
+ * Process the order payment based on the selected payment method
+ * 
+ * @param string $from The customer's phone number
+ * @param array $context The conversation context containing order details
+ * @return bool True on success, false on failure
+ */
+function kwetupizza_process_order_payment($from, $context) {
+    if (empty($context['cart']) || !isset($context['payment_provider'])) {
+        kwetupizza_send_whatsapp_message($from, "Error processing payment: Missing cart or payment method.");
+        return false;
+    }
+    
+    $payment_provider = $context['payment_provider'];
+    
+    if ($payment_provider === 'cash') {
+        // For cash on delivery, just save the order and notify
+        $order_id = kwetupizza_save_order($from, $context);
+        
+        if (!$order_id) {
+            kwetupizza_send_whatsapp_message($from, "Sorry, we couldn't process your order. Please try again later.");
+            return false;
+        }
+        
+        // Success message
+        $message = "✅ *Order Confirmed!* ✅\n\n";
+        $message .= "Your order has been placed successfully. Order #" . $order_id . "\n\n";
+        $message .= "Total: " . number_format($context['total'], 0) . " TZS\n";
+        $message .= "Delivery Address: " . $context['address'] . "\n";
+        $message .= "Payment Method: Cash on Delivery\n\n";
+        $message .= "Your order is being prepared. We'll contact you when our delivery agent is on the way.";
+        
+        kwetupizza_send_whatsapp_message($from, $message);
+        
+        // Notify admin about new order
+        kwetupizza_notify_admin($order_id, true, 'new_order');
+        
+        // Reset conversation context
+        $context['state'] = 'greeting';
+        $context['cart'] = array();
+        $context['awaiting'] = '';
+        $context['order_id'] = $order_id;
+        kwetupizza_set_conversation_context($from, $context);
+        
+        return true;
+    } else {
+        // For mobile money payments, use the customer's phone number if not specified
+        $payment_phone = isset($context['payment_phone']) ? $context['payment_phone'] : $from;
+        
+        return kwetupizza_generate_mobile_money_push($from, $context['cart'], $context['address'], $payment_phone);
+    }
+}
+
 // Send cart summary with a better format
 function kwetupizza_send_cart_summary($from, $cart) {
     if (empty($cart)) {

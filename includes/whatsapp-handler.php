@@ -16,8 +16,8 @@ require_once plugin_dir_path(dirname(__FILE__)) . '/admin/settings-page.php';
 
 // Get business name function for messages
 if (!function_exists('kwetupizza_get_business_name')) {
-    function kwetupizza_get_business_name() {
-        return get_option('kwetupizza_business_name', 'KwetuPizza');
+function kwetupizza_get_business_name() {
+    return get_option('kwetupizza_business_name', 'KwetuPizza');
     }
 }
 
@@ -28,39 +28,39 @@ if (!function_exists('kwetupizza_get_business_name')) {
 if (!function_exists('kwetupizza_register_webhook_routes')) {
     function kwetupizza_register_webhook_routes() {
         // WhatsApp Webhook Routes - GET for verification
-        register_rest_route('kwetupizza/v1', '/whatsapp-webhook', array(
+    register_rest_route('kwetupizza/v1', '/whatsapp-webhook', array(
             'methods' => 'GET',
-            'callback' => 'kwetupizza_handle_whatsapp_verification',
-            'permission_callback' => '__return_true',
-        ));
+        'callback' => 'kwetupizza_handle_whatsapp_verification',
+        'permission_callback' => '__return_true',
+    ));
 
         // WhatsApp Webhook Routes - POST for message processing
-        register_rest_route('kwetupizza/v1', '/whatsapp-webhook', array(
+    register_rest_route('kwetupizza/v1', '/whatsapp-webhook', array(
             'methods' => 'POST',
-            'callback' => 'kwetupizza_handle_whatsapp_messages',
-            'permission_callback' => '__return_true',
-        ));
-        
-        // Flutterwave Webhook Route
-        register_rest_route('kwetupizza/v1', '/flutterwave-webhook', array(
-            'methods' => WP_REST_Server::CREATABLE,
-            'callback' => 'log_flutterwave_payment_webhook',
-            'permission_callback' => '__return_true',
-        ));
-        
-        // Order tracking route
-        register_rest_route('kwetupizza/v1', '/order-status/(?P<order_id>\d+)', array(
-            'methods' => WP_REST_Server::READABLE,
-            'callback' => 'kwetupizza_get_order_status',
-            'permission_callback' => '__return_true',
-        ));
-        
-        // Add Webhook Testing Endpoint
-        register_rest_route('kwetupizza/v1', '/test-webhook', array(
-            'methods' => WP_REST_Server::ALLMETHODS, // Accept GET, POST, etc.
-            'callback' => 'kwetupizza_test_webhook_callback', // Renamed callback function
-            'permission_callback' => '__return_true', // Open for testing, consider adding security later
-        ));
+        'callback' => 'kwetupizza_handle_whatsapp_messages',
+        'permission_callback' => '__return_true',
+    ));
+
+    // Flutterwave Webhook Route
+    register_rest_route('kwetupizza/v1', '/flutterwave-webhook', array(
+        'methods' => WP_REST_Server::CREATABLE,
+        'callback' => 'log_flutterwave_payment_webhook',
+        'permission_callback' => '__return_true',
+    ));
+    
+    // Order tracking route
+    register_rest_route('kwetupizza/v1', '/order-status/(?P<order_id>\d+)', array(
+        'methods' => WP_REST_Server::READABLE,
+        'callback' => 'kwetupizza_get_order_status',
+        'permission_callback' => '__return_true',
+    ));
+
+    // Add Webhook Testing Endpoint
+    register_rest_route('kwetupizza/v1', '/test-webhook', array(
+        'methods' => WP_REST_Server::ALLMETHODS, // Accept GET, POST, etc.
+        'callback' => 'kwetupizza_test_webhook_callback', // Renamed callback function
+        'permission_callback' => '__return_true', // Open for testing, consider adding security later
+    ));
     }
 }
 add_action('rest_api_init', 'kwetupizza_register_webhook_routes');
@@ -72,17 +72,17 @@ add_action('rest_api_init', 'kwetupizza_register_webhook_routes');
  * @return bool Whether the token is valid
  */
 if (!function_exists('kwetupizza_verify_service_token')) {
-    function kwetupizza_verify_service_token($request) {
-        $token = $request->get_header('X-Webhook-Token');
-        $stored_token = get_option('kwetupizza_webhook_security_token');
-        
-        // If no token is set, deny access
-        if (empty($stored_token)) {
-            return false;
-        }
-        
-        // Compare the provided token with the stored token
-        return $token === $stored_token;
+function kwetupizza_verify_service_token($request) {
+    $token = $request->get_header('X-Webhook-Token');
+    $stored_token = get_option('kwetupizza_webhook_security_token');
+    
+    // If no token is set, deny access
+    if (empty($stored_token)) {
+        return false;
+    }
+    
+    // Compare the provided token with the stored token
+    return $token === $stored_token;
     }
 }
 
@@ -93,19 +93,19 @@ if (!function_exists('kwetupizza_verify_service_token')) {
  * @return WP_REST_Response The response with credentials
  */
 if (!function_exists('kwetupizza_service_credentials_endpoint')) {
-    function kwetupizza_service_credentials_endpoint($request) {
-        $service_name = $request->get_param('service_name');
-        $callback_type = $request->get_param('callback_type') ?? 'webhook';
-        
-        // Get credentials for the requested service
-        $credentials = kwetupizza_get_service_credentials($service_name, $callback_type);
-        
-        if (isset($credentials['error'])) {
-            return new WP_REST_Response(['error' => $credentials['error']], 400);
-        }
-        
-        return new WP_REST_Response($credentials, 200);
+function kwetupizza_service_credentials_endpoint($request) {
+    $service_name = $request->get_param('service_name');
+    $callback_type = $request->get_param('callback_type') ?? 'webhook';
+    
+    // Get credentials for the requested service
+    $credentials = kwetupizza_get_service_credentials($service_name, $callback_type);
+    
+    if (isset($credentials['error'])) {
+        return new WP_REST_Response(['error' => $credentials['error']], 400);
     }
+    
+    return new WP_REST_Response($credentials, 200);
+}
 }
 
 /**
@@ -164,7 +164,7 @@ if (!function_exists('kwetupizza_handle_whatsapp_verification')) {
         
         // Step 2: Verify the mode is 'subscribe'
         if ($mode !== 'subscribe') {
-            if (get_option('kwetupizza_enable_logging', false)) {
+    if (get_option('kwetupizza_enable_logging', false)) {
                 error_log('Verification failed: Invalid mode "' . sanitize_text_field($mode) . '"');
             }
             return new WP_REST_Response('Verification failed: Invalid mode', 400);
@@ -208,15 +208,15 @@ if (!function_exists('kwetupizza_handle_whatsapp_messages')) {
         if (!empty($signature) && !kwetupizza_verify_whatsapp_signature($signature, $body)) {
             if (get_option('kwetupizza_enable_logging', false)) {
                 error_log('WhatsApp webhook: Signature verification failed');
-            }
-            return new WP_REST_Response('Invalid signature', 403);
         }
-        
+        return new WP_REST_Response('Invalid signature', 403);
+    }
+
         // Parse request data
         $webhook_data = json_decode($body, true);
-        
+
         // Log the request data for debugging
-        if (get_option('kwetupizza_enable_logging', false)) {
+    if (get_option('kwetupizza_enable_logging', false)) {
             error_log('WhatsApp webhook payload received: ' . print_r($webhook_data, true));
         }
         
@@ -329,7 +329,7 @@ add_action('kwetupizza_process_whatsapp_webhook', 'kwetupizza_process_whatsapp_w
  * @return bool Whether the signature is valid
  */
 if (!function_exists('kwetupizza_verify_whatsapp_signature')) {
-    function kwetupizza_verify_whatsapp_signature($signature, $payload) {
+function kwetupizza_verify_whatsapp_signature($signature, $payload) {
         $app_secret = get_option('kwetupizza_whatsapp_app_secret');
         
         // If no app secret configured, skip verification
@@ -343,8 +343,8 @@ if (!function_exists('kwetupizza_verify_whatsapp_signature')) {
         
         // Check signature format
         if (strpos($signature, 'sha256=') !== 0) {
-            return false;
-        }
+        return false;
+    }
 
         // Generate expected signature
         $expected = 'sha256=' . hash_hmac('sha256', $payload, $app_secret);
@@ -428,7 +428,7 @@ if (!function_exists('kwetupizza_render_whatsapp_webhook_helper')) {
                     success: function(response) {
                         if (response.success) {
                             $result.html('<span style="color:green;">✓ Success! Webhook is properly configured.</span>');
-                        } else {
+                } else {
                             $result.html('<span style="color:red;">✗ Error: ' + response.data + '</span>');
                         }
                     },
@@ -556,8 +556,93 @@ if (!function_exists('kwetupizza_notify_admin')) {
 }
 }
 function kwetupizza_generate_mobile_money_push($from, $cart, $address, $payment_phone) {
-    // Implement your mobile money logic here
-    // This function should be kept from the original code
+    global $wpdb;
+    
+    // Get payment provider from context
+    $context = kwetupizza_get_conversation_context($from);
+    $payment_provider = isset($context['payment_provider']) ? $context['payment_provider'] : 'mpesa';
+    
+    // Map provider names to Flutterwave network codes
+    $network_map = [
+        'mpesa' => 'vodafone',
+        'tigopesa' => 'tigo',
+        'airtel' => 'airtel',
+        'halopesa' => 'halotel'
+    ];
+    
+    $network = isset($network_map[$payment_provider]) ? $network_map[$payment_provider] : 'vodafone';
+    
+    // Calculate total from cart
+    $total = 0;
+    foreach ($cart as $item) {
+        $total += $item['price'] * $item['quantity'];
+    }
+    
+    // Add service fee if applicable
+    if (isset($context['service_fee']) && $context['service_fee'] > 0) {
+        $total += $context['service_fee'];
+    }
+    
+    // Save the order in database
+    $order_id = kwetupizza_save_order($from, $context);
+    
+    if (!$order_id) {
+        kwetupizza_send_whatsapp_message($from, "Sorry, we couldn't process your order. Please try again later.");
+        return false;
+    }
+    
+    // Format phone number for Flutterwave
+    $payment_phone = preg_replace('/[^0-9]/', '', $payment_phone);
+    // Ensure phone number starts with country code
+    if (substr($payment_phone, 0, 1) === '0') {
+        $payment_phone = '255' . substr($payment_phone, 1);
+    } elseif (substr($payment_phone, 0, 3) !== '255') {
+        $payment_phone = '255' . $payment_phone;
+    }
+    
+    // Get customer details
+    $customer = kwetupizza_get_customer_details($from);
+    
+    // Process mobile money payment
+    $payment_result = kwetupizza_process_mobile_money_payment($order_id, $payment_phone, $network);
+    
+    if (is_wp_error($payment_result)) {
+        // Handle payment error
+        kwetupizza_send_whatsapp_message($from, "🔴 Payment Error: " . $payment_result->get_error_message());
+        
+        // Update order status to failed
+        $wpdb->update(
+            $wpdb->prefix . 'kwetupizza_orders',
+            array('status' => 'failed'),
+            array('id' => $order_id)
+        );
+        
+        return false;
+    }
+    
+    // Payment request successful - send confirmation to user
+    kwetupizza_send_whatsapp_message($from, "🔵 Payment request sent! Please check your phone for a payment prompt from " . strtoupper($payment_provider) . " and complete the transaction.");
+    
+    // Send order details
+    $message = "📋 *Order Summary*\n\n";
+    $message .= "Order #: " . $order_id . "\n";
+    $message .= "Total: " . number_format($total, 0) . " TZS\n";
+    $message .= "Delivery Address: " . $address . "\n\n";
+    $message .= "We'll update you once we receive your payment confirmation.";
+    
+    kwetupizza_send_whatsapp_message($from, $message);
+    
+    // Notify admin about new order
+    kwetupizza_notify_admin($order_id, true, 'new_order');
+    
+    // Reset the conversation context
+    $context['state'] = 'greeting';
+    $context['cart'] = array();
+    $context['awaiting'] = '';
+    $context['order_id'] = $order_id;
+    kwetupizza_set_conversation_context($from, $context);
+    
+    return true;
 }
 
 function kwetupizza_notify_admin_by_order_tx_ref($tx_ref, $success = true) {
@@ -739,7 +824,7 @@ if (!function_exists('kwetupizza_get_conversation_context')) {
  */
 if (!function_exists('kwetupizza_set_conversation_context')) {
     function kwetupizza_set_conversation_context($phone, $context) {
-        global $wpdb;
+    global $wpdb;
 
         if (empty($phone) || !is_array($context)) {
             return false;
